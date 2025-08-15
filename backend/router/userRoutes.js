@@ -7,7 +7,7 @@ import {
   register,
 } from "../controllers/userController.js";
 import { isAuthenticated } from "../middlewares/auth.js";
-import { sendOTPVerification2, verifyOtp } from "../controllers/OTPverificationcontroller.js";
+import { sendOTPVerification2 } from "../controllers/OTPverificationcontroller.js";
 // import OtpVerification from "../models/OTPverification.js";
 
 const router = express.Router();
@@ -19,6 +19,6 @@ router.get("/logout", isAuthenticated, logout);
 router.get("/leaderboard", fetchLeaderboard);
 
 router.post('/sendotp',sendOTPVerification2)
-router.post('/verifyotp',verifyOtp)
+// router.post('/verifyotp',verifyOtp)
 
 export default router;

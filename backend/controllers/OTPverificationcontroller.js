@@ -1,8 +1,8 @@
 
 import { sendMailto } from "../utils/sendEmail.js";
-import {OtpVerification} from "../models/OTPverification.js"
-
-function generateOTP() {
+import { OtpVerification } from "../models/OTPverification.js"
+import nodemailer from "nodemailer";
+export function generateOTP() {
     
     const otp = Math.floor(100000 + Math.random() * 900000);
     
@@ -10,166 +10,55 @@ function generateOTP() {
     // (Math.random could theoretically generate a number less than 100000)
     return otp.toString().padStart(6, '0');
   }
-  
- export const sendOTPVerification2 = async (req, res) => {
-    try {
-      const { email } = req.body;
-      const otp = generateOTP();
-      const htmlTemplate = `<!DOCTYPE html>
-  <html>
-  <head>
-      <style>
-          .email-container {
-              font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-              max-width: 600px;
-              margin: 0 auto;
-              padding: 20px;
-              background-color: #f8f9fa;
-          }
-          .header {
-              text-align: center;
-              padding: 20px 0;
-          }
-          .logo {
-              font-size: 24px;
-              color: #2563eb;
-              font-weight: bold;
-              margin-bottom: 10px;
-          }
-          .content {
-              background-color: white;
-              padding: 30px;
-              border-radius: 10px;
-              box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-              margin: 20px 0;
-          }
-          .otp-box {
-              background-color: #f0f7ff;
-              border: 2px dashed #2563eb;
-              border-radius: 8px;
-              padding: 20px;
-              margin: 20px 0;
-              text-align: center;
-          }
-          .otp-code {
-              font-size: 32px;
-              letter-spacing: 8px;
-              color: #2563eb;
-              font-weight: bold;
-              margin: 10px 0;
-              font-family: monospace;
-          }
-          .warning {
-              background-color: #fff8f1;
-              border-left: 4px solid #f97316;
-              padding: 15px;
-              margin: 20px 0;
-              font-size: 14px;
-              color: #9a3412;
-          }
-          .footer {
-              text-align: center;
-              color: #6b7280;
-              font-size: 14px;
-              margin-top: 20px;
-              padding-top: 20px;
-              border-top: 1px solid #e5e7eb;
-          }
-          .message {
-              color: #4b5563;
-              line-height: 1.6;
-              margin-bottom: 20px;
-          }
-          .expiry {
-              font-size: 14px;
-              color: #ef4444;
-              margin-top: 10px;
-          }
-      </style>
-  </head>
-  <body>
-      <div class="email-container">
-          <div class="header">
-              <div class="logo">🔐 SecureLogin</div>
-          </div>
-          <div class="content">
-              <div class="message">
-                  <h2>Verify Your Login</h2>
-                  <p>Hello,</p>
-                  <p>You've requested to log in to your account. To complete the login process, please use the following One-Time Password (OTP):</p>
-              </div>
-              
-              <div class="otp-box">
-                  <div>Your OTP Code is:</div>
-                  <div class="otp-code">${otp}</div>
-                  <div class="expiry">Valid for 5 minutes only</div>
-              </div>
-  
-              <div class="warning">
-                  ⚠ Never share this OTP with anyone. Our team will never ask for your OTP.
-              </div>
-  
-              <p class="message">
-                  If you didn't request this login, please ignore this email or contact support if you have concerns.
-              </p>
-          </div>
-          <div class="footer">
-              <p>This is an automated message, please do not reply to this email.</p>
-              <p>© 2025 SecureLogin. All rights reserved.</p>
-          </div>
+// Create a test account or replace with real credentials.
+const transporter = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false,
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_APP_PASSWORD,
+  },
+});
+
+// Send OTP function
+export const sendOTPVerification2 = async (userEmail,OTP) => {
+  try {
+    
+
+    const info = await transporter.sendMail({
+      from: `"Auction Authority" <${process.env.EMAIL_USER}>`,
+      to: userEmail,
+      subject: "Your OTP Code",
+      text: `Your OTP is ${OTP}`,
+      html: ` <div style="font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 20px;">
+    <div style="max-width: 600px; margin: auto; background: white; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden;">
+      <div style="background-color: #004aad; color: white; padding: 15px 20px; text-align: center; font-size: 20px; font-weight: bold;">
+        Auction Authority - OTP Verification
       </div>
-  </body>
-  </html>`;
-  
-      
-  
-      const newOtpVerification = new OtpVerification({
-        otp,
-        email,
-      });
-  
-      const savedOtpVerification = await newOtpVerification.save();
-  
-      await sendMailto(
-        htmlTemplate,
-        email,
-        `Your Login OTP: ${otp}`,
-        "Login Verification OTP"
-      );
-  
-      res.json({
-        status: "pending",
-        message: "OTP message sent",
-     
-      });
-    } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: "Internal server error",
-        error: error.message,
-      });
-    }
-  };
-  export const verifyOtp = async (req,res)=>{
-    try {
-      const {email, otp } = req.body;
-  
-      const isOtp = await OtpVerification.findOne({email});
-      if(!isOtp){
-        return res.status(400).json({message:"otp not matched"})
-      }
-      if(isOtp.otp !== otp){
-        return res.status(400).json({message:"otp not matched"})
-      }
-      const deltedOtp = await OtpVerification.deleteMany({email});
-  
-      res.status(200).json({
-        message: "otp verified successfully",
-  
-      })
-    } catch (error) {
-      return res.status(400).json({message:error.message})
-  
-    }
+      <div style="padding: 20px; color: #333; font-size: 16px; line-height: 1.5;">
+        <p>Dear User,</p>
+        <p>We have received a request to verify your email address for your account with <strong>Auction Authority</strong>.</p>
+        <p>Please use the following One-Time Password (OTP) to complete your verification process. This code is valid for <strong>10 minutes</strong> only.</p>
+        <div style="text-align: center; margin: 30px 0;">
+          <span style="display: inline-block; font-size: 28px; letter-spacing: 4px; font-weight: bold; color: #004aad; padding: 12px 20px; border: 2px dashed #004aad; border-radius: 6px;">
+            ${OTP}
+          </span>
+        </div>
+        <p>If you did not request this, please ignore this email or contact our support immediately.</p>
+        <p style="margin-top: 20px;">Best regards,<br><strong>Auction Authority Team</strong></p>
+      </div>
+      <div style="background-color: #f2f2f2; padding: 10px; text-align: center; font-size: 12px; color: #888;">
+        &copy; ${new Date().getFullYear()} Auction Authority. All rights reserved.
+      </div>
+    </div>
+  </div>`,
+    });
+
+    console.log("OTP email sent:", info.messageId);
+    // return otp; // You can store this in DB for verification
+  } catch (error) {
+    console.error("Error sending mail:", error);
+    throw error;
   }
-//   module.exports={verifyOtp,sendOTPVerification2}
+}
