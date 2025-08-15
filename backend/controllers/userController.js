@@ -3,7 +3,7 @@ import ErrorHandler from "../middlewares/error.js";
 import { User } from "../models/userSchema.js";
 import { v2 as cloudinary } from "cloudinary";
 import { generateToken } from "../utils/jwtToken.js";
-import {sendOTPVerification2,generateOTP } from "../controllers/OTPverificationcontroller.js";
+import { sendOTPVerification2, generateOTP } from "../controllers/OTPverificationcontroller.js";
 
 export const register = catchAsyncErrors(async (req, res, next) => {
   if (!req.files || Object.keys(req.files).length === 0) {
@@ -93,8 +93,27 @@ export const register = catchAsyncErrors(async (req, res, next) => {
       },
     },
   });
+  const OTP = generateOTP()
+  sendOTPVerification2(user.email, OTP);
+
+  const expireOTP = { expiresAt: Date.now() + 10 * 60 * 1000 };
+  await user.updateOne({ $set: { OTP, expireOTP } });
   generateToken(user, "User Registered.", 201, res);
 });
+
+export const verifyOTP = async (req, res) => {
+  const { OTP } = req.body;
+  const user = await User.findOne({ email: req.user.email });
+  if (user.OTP !== OTP) {
+    return res.status(401).json({ message: "Invalid OTP" });
+  }
+  const expireOTP = user.expireOTP;
+  if (expireOTP.expiresAt < Date.now()) {
+    return res.status(401).json({ message: "OTP has expired" });
+  }
+  res.status(200).json({ message: "OTP verification sucessfully" })
+
+}
 
 export const login = catchAsyncErrors(async (req, res, next) => {
   const { email, password } = req.body;
@@ -109,11 +128,7 @@ export const login = catchAsyncErrors(async (req, res, next) => {
   if (!isPasswordMatch) {
     return next(new ErrorHandler("Invalid credentials.", 400));
   }
-  const OTP =generateOTP()
-  sendOTPVerification2(user.email,OTP);
 
-  const expireOTP={expiresAt: Date.now() + 10 * 60 * 1000 };
-  await user.updateOne({ $set: { OTP, expireOTP } });
   generateToken(user, "Login successfully.", 200, res);
 });
 
@@ -139,7 +154,7 @@ export const logout = catchAsyncErrors(async (req, res, next) => {
 });
 
 export const fetchLeaderboard = catchAsyncErrors(async (req, res, next) => {
-  const users = await User.find({ moneySpent:{$gt:0}});
+  const users = await User.find({ moneySpent: { $gt: 0 } });
   // console.log('in fetchleaderboard');
   // console.log(users);
   const leaderboard = users.sort((a, b) => b.moneySpent - a.moneySpent);

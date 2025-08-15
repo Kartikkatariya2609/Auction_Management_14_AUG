@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  verifyOTP,
   fetchLeaderboard,
   getProfile,
   login,
@@ -19,6 +20,6 @@ router.get("/logout", isAuthenticated, logout);
 router.get("/leaderboard", fetchLeaderboard);
 
 router.post('/sendotp',sendOTPVerification2)
-// router.post('/verifyotp',verifyOtp)
+router.post('/verifyotp',verifyOTP)
 
 export default router;

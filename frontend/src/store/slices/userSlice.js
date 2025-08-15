@@ -99,10 +99,11 @@ export const register = (data) => async (dispatch) => {
       }
     );
 
-
     dispatch(userSlice.actions.registerSuccess(response.data));
     toast.success(response.data.message);
     dispatch(userSlice.actions.clearAllErrors());
+    navigate('/verifyOTP')
+
   } catch (error) {
     
     dispatch(userSlice.actions.registerFailed());

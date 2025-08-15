@@ -22,6 +22,7 @@ import Dashboard from "./pages/Dashboard/Dashboard";
 import Contact from "./pages/Contact";
 import UserProfile from "./pages/UserProfile";
 import Chatbot from "./pages/Chatbot"
+import VerifyOTP from "./pages/OTPverification"
 
 const App = () => {
   const dispatch = useDispatch();
@@ -50,6 +51,7 @@ const App = () => {
         <Route path="/contact" element={<Contact />} />
         <Route path="/me" element={<UserProfile />} />
         <Route path="/Chatbot" element={<Chatbot />} />
+        <Route path="/verifyOTP" element={<VerifyOTP />} />
       </Routes>
       <ToastContainer position="top-right" />
     </Router>
