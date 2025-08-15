@@ -4,7 +4,8 @@ import commissionReducer from "./slices/commissionSlice";
 import auctionReducer from "./slices/auctionSlice";
 import bidReducer from "./slices/bidSlice";
 import superAdminReducer from "./slices/superAdminSlice";
-import verifyOTP from "./slices/verifiyOTPslice"
+import verifyOTPReducer from "./slices/verifiyOTPslice";
+
 export const store = configureStore({
   reducer: {
     user: userReducer,
@@ -12,6 +13,6 @@ export const store = configureStore({
     auction: auctionReducer,
     bid: bidReducer,
     superAdmin: superAdminReducer,
-    verifyOTP: verifyOTPReducer
+    verifyOTP: verifyOTPReducer,
   },
 });

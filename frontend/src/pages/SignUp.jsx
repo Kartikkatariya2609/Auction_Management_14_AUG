@@ -1,5 +1,5 @@
 import { register } from "@/store/slices/userSlice";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
@@ -19,7 +19,7 @@ const SignUp = () => {
   const [profileImagePreview, setProfileImagePreview] = useState("");
 
   const { loading, isAuthenticated } = useSelector((state) => state.user);
-  const navigateTo = useNavigate();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const handleRegister = (e) => {
@@ -39,11 +39,12 @@ const SignUp = () => {
       formData.append("easypaisaAccountNumber", easypaisaAccountNumber),
       formData.append("paypalEmail", paypalEmail));
     dispatch(register(formData));
+    
   };
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigateTo("/");
+      navigate("/verifyOTP");
     }
   }, [dispatch, loading, isAuthenticated]);
 

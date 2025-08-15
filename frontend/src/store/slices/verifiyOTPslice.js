@@ -38,7 +38,7 @@ export const verifyingOTP = (OTP) => async (dispatch) => {
     dispatch(verifyOTPRequest());
 
     const response = await axios.post(
-      "http://localhost:5000/api/v1/user/verifyotp",
+      "http://localhost:5000/api/v1/user/verifyotp/:id",
       { OTP },
       { withCredentials: true } // needed if req.user comes from session/cookie
     );
