@@ -1,24 +1,25 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const otpVerificationSchema = new mongoose.Schema({
   otp: {
     type: String,
-    required: true
+    required: true,
   },
   email: {
     type: String,
-    required: false
+    required: false,
   },
   createdAt: {
     type: Date,
-    default: Date.now
+    default: Date.now,
   },
   expiresAt: {
     type: Date,
-    required: false
-  }
+    required: false,
+  },
 });
 
-export const OtpVerification = mongoose.model('OtpVerification', otpVerificationSchema);
-
-// module.exports = OtpVerification;
+export const OtpVerification = mongoose.model(
+  "OtpVerification",
+  otpVerificationSchema
+);

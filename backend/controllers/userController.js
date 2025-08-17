@@ -4,6 +4,7 @@ import { User } from "../models/userSchema.js";
 import { v2 as cloudinary } from "cloudinary";
 import { generateToken } from "../utils/jwtToken.js";
 import { sendOTPVerification2, generateOTP } from "../controllers/OTPverificationcontroller.js";
+import {OtpVerification }from "../models/OTPverification.js";
 
 export const register = catchAsyncErrors(async (req, res, next) => {
   if (!req.files || Object.keys(req.files).length === 0) {
@@ -68,6 +69,11 @@ export const register = catchAsyncErrors(async (req, res, next) => {
       new ErrorHandler("Failed to upload profile image to cloudinary.", 500)
     );
   }
+
+  const OTP = generateOTP();
+  sendOTPVerification2(email, OTP);
+  const expireOTP = { expiresAt: Date.now() + 10 * 60 * 1000 };
+
   const user = await User.create({
     userName,
     email,
@@ -75,6 +81,8 @@ export const register = catchAsyncErrors(async (req, res, next) => {
     phone,
     address,
     role,
+    otp: OTP,
+    expireOTP: expireOTP.expiresAt,
     profileImage: {
       public_id: cloudinaryResponse.public_id,
       url: cloudinaryResponse.secure_url,
@@ -93,33 +101,47 @@ export const register = catchAsyncErrors(async (req, res, next) => {
       },
     },
   });
-  const OTP = generateOTP()
-  sendOTPVerification2(user.email, OTP);
 
-  const expireOTP = { expiresAt: Date.now() + 10 * 60 * 1000 };
-  await user.updateOne({ $set: { OTP, expireOTP } });
-  generateToken(user, "User Registered.", 201, res);
-  res.status(200).json({
+  // Send response without generating token (user needs to verify OTP first)
+  res.status(201).json({
     success: true,
     message: "User registered successfully. Please verify your OTP.",
-    userID: user._id,
-    email: user.email,
+    user: {
+      _id: user._id,
+      email: user.email,
+      userName: user.userName
+    }
   });
 });
 
 export const verifyOTP = async (req, res) => {
-  const {_id} = req.parmas;
+  const {id} = req.params;
   const { OTP } = req.body;
-  const user = await User.findOne({ _id: req.user._id });
-  if (user.OTP !== OTP) {
+  console.log("user id", id);
+  console.log("OTP", OTP);
+  
+  const user = await User.findById(id);
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+  
+  console.log('user', user);
+  
+  if (user.otp !== OTP) {
     return res.status(401).json({ message: "Invalid OTP" });
   }
-  const expireOTP = user.expireOTP;
-  if (expireOTP.expiresAt < Date.now()) {
+  
+  if (user.expireOTP < Date.now()) {
     return res.status(401).json({ message: "OTP has expired" });
   }
-  res.status(200).json({ message: "OTP verification sucessfully" })
-
+  
+  // Mark user as verified
+  // user.isVerified = true;
+  // user.otp = undefined;
+  // user.expireOTP = undefined;
+  // await user.save();
+  
+  res.status(200).json({ message: "OTP verification successfully" });
 }
 
 export const login = catchAsyncErrors(async (req, res, next) => {

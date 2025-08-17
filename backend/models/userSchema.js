@@ -20,6 +20,14 @@ const userSchema = new mongoose.Schema({
     minLength: [10, "Phone Number must contain exact 10 digits."],
     maxLength: [10, "Phone Number must contain exact 10 digits."],
   },
+   otp: {
+    type: String,
+    required: true,
+  },
+  expiresAt: {
+    type: Date,
+    required: false,
+  },
   profileImage: {
     public_id: {
       type: String,

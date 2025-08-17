@@ -51,7 +51,7 @@ const App = () => {
         <Route path="/contact" element={<Contact />} />
         <Route path="/me" element={<UserProfile />} />
         <Route path="/Chatbot" element={<Chatbot />} />
-        <Route path="/verifyOTP" element={<VerifyOTP />} />
+        <Route path="/verifyOTP/:id" element={<VerifyOTP />} />
       </Routes>
       <ToastContainer position="top-right" />
     </Router>

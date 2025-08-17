@@ -18,7 +18,7 @@ const SignUp = () => {
   const [profileImage, setProfileImage] = useState("");
   const [profileImagePreview, setProfileImagePreview] = useState("");
 
-  const { loading, isAuthenticated } = useSelector((state) => state.user);
+  const { loading, isAuthenticated, user } = useSelector((state) => state.user);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -43,10 +43,10 @@ const SignUp = () => {
   };
 
   useEffect(() => {
-    if (isAuthenticated) {
-      navigate("/verifyOTP");
+    if (isAuthenticated && user._id) {
+      navigate(`/verifyOTP/${user._id}`);
     }
-  }, [dispatch, loading, isAuthenticated]);
+  }, [dispatch, loading, isAuthenticated, user, navigate]);
 
   const imageHandler = (e) => {
     const file = e.target.files[0];

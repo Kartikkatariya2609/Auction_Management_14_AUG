@@ -33,12 +33,12 @@ export const { verifyOTPRequest, verifyOTPSuccess, verifyOTPFailure } =
   verifyOTPslice.actions;
 
 // Thunk for verifying OTP
-export const verifyingOTP = (OTP) => async (dispatch) => {
+export const verifyingOTP = (OTP, userId) => async (dispatch) => {
   try {
     dispatch(verifyOTPRequest());
 
     const response = await axios.post(
-      "http://localhost:5000/api/v1/user/verifyotp/:id",
+      `http://localhost:5000/api/v1/user/verifyotp/${userId}`,
       { OTP },
       { withCredentials: true } // needed if req.user comes from session/cookie
     );

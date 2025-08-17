@@ -8,7 +8,7 @@ export function generateOTP() {
     
     // Convert to string to ensure it's exactly 6 digits
     // (Math.random could theoretically generate a number less than 100000)
-    return otp.toString().padStart(6, '0');
+    return otp;
   }
 // Create a test account or replace with real credentials.
 const transporter = nodemailer.createTransport({

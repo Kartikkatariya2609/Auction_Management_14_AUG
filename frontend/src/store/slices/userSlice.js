@@ -1,7 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { useNavigate } from 'react-router-dom';
 
 const userSlice = createSlice({
   name: "user",
@@ -12,7 +11,7 @@ const userSlice = createSlice({
     leaderboard: [],
   },
   reducers: {
-    registerRequest(state, action) {
+    registerRequest(state) {
       state.loading = true;
       state.isAuthenticated = false;
       state.user = {};
@@ -22,12 +21,12 @@ const userSlice = createSlice({
       state.isAuthenticated = true;
       state.user = action.payload.user;
     },
-    registerFailed(state, action) {
+    registerFailed(state) {
       state.loading = false;
       state.isAuthenticated = false;
       state.user = {};
     },
-    loginRequest(state, action) {
+    loginRequest(state) {
       state.loading = true;
       state.isAuthenticated = false;
       state.user = {};
@@ -37,12 +36,12 @@ const userSlice = createSlice({
       state.isAuthenticated = true;
       state.user = action.payload.user;
     },
-    loginFailed(state, action) {
+    loginFailed(state) {
       state.loading = false;
       state.isAuthenticated = false;
       state.user = {};
     },
-    fetchUserRequest(state, action) {
+    fetchUserRequest(state) {
       state.loading = true;
       state.isAuthenticated = false;
       state.user = {};
@@ -52,22 +51,20 @@ const userSlice = createSlice({
       state.isAuthenticated = true;
       state.user = action.payload;
     },
-    fetchUserFailed(state, action) {
+    fetchUserFailed(state) {
       state.loading = false;
       state.isAuthenticated = false;
       state.user = {};
     },
 
-    logoutSuccess(state, action) {
+    logoutSuccess(state) {
       state.isAuthenticated = false;
       state.user = {};
     },
-    logoutFailed(state, action) {
+    logoutFailed(state) {
       state.loading = false;
-      state.isAuthenticated = state.isAuthenticated;
-      state.user = state.user;
     },
-    fetchLeaderboardRequest(state, action) {
+    fetchLeaderboardRequest(state) {
       state.loading = true;
       state.leaderboard = [];
     },
@@ -75,14 +72,11 @@ const userSlice = createSlice({
       state.loading = false;
       state.leaderboard = action.payload;
     },
-    fetchLeaderboardFailed(state, action) {
+    fetchLeaderboardFailed(state) {
       state.loading = false;
       state.leaderboard = [];
     },
-    clearAllErrors(state, action) {
-      state.user = state.user;
-      state.isAuthenticated = state.isAuthenticated;
-      state.leaderboard = state.leaderboard;
+    clearAllErrors(state) {
       state.loading = false;
     },
   },
@@ -99,11 +93,9 @@ export const register = (data) => async (dispatch) => {
         headers: { "Content-Type": "multipart/form-data" },
       }
     );
-    const navigate = useNavigate();
     dispatch(userSlice.actions.registerSuccess(response.data));
     toast.success(response.data.message);
     dispatch(userSlice.actions.clearAllErrors());
-    navigate('/verifyOTP')
 
   } catch (error) {
     
