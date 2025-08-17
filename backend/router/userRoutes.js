@@ -20,6 +20,6 @@ router.get("/logout", isAuthenticated, logout);
 router.get("/leaderboard", fetchLeaderboard);
 
 router.post('/sendotp',sendOTPVerification2)
-router.post('/verifyotp',verifyOTP)
+router.post('/verifyotp/:id',verifyOTP)
 
 export default router;

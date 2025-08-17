@@ -99,11 +99,18 @@ export const register = catchAsyncErrors(async (req, res, next) => {
   const expireOTP = { expiresAt: Date.now() + 10 * 60 * 1000 };
   await user.updateOne({ $set: { OTP, expireOTP } });
   generateToken(user, "User Registered.", 201, res);
+  res.status(200).json({
+    success: true,
+    message: "User registered successfully. Please verify your OTP.",
+    userID: user._id,
+    email: user.email,
+  });
 });
 
 export const verifyOTP = async (req, res) => {
+  const {_id} = req.parmas;
   const { OTP } = req.body;
-  const user = await User.findOne({ email: req.user.email });
+  const user = await User.findOne({ _id: req.user._id });
   if (user.OTP !== OTP) {
     return res.status(401).json({ message: "Invalid OTP" });
   }
